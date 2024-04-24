@@ -1,64 +1,86 @@
 #include <iostream>
-#include <vector>
 #include <omp.h>
-#include <climits>
+#include <ctime>
+#include <cstdlib>
 
 using namespace std;
 
-void min_reduction(vector<int>& arr) {
-  int min_value = INT_MAX;
-  #pragma omp parallel for reduction(min: min_value)
-  for (int i = 0; i < arr.size(); i++) {
-    if (arr[i] < min_value) {
-      min_value = arr[i];
-    }
-  }
-  cout << "Minimum value: " << min_value << endl;
+void min(int *arr, int n)
+{
+   double min_val = 10000;
+   int i;
+   cout << endl;
+#pragma omp parallel for reduction(min : min_val)
+   for (i = 0; i < n; i++)
+   {
+      cout << "\nthread id = " << omp_get_thread_num() << " and i = " << i;
+      if (arr[i] < min_val)
+      {
+         min_val = arr[i];
+      }
+   }
+   cout << "\n\nmin_val = " << min_val << endl;
 }
 
-void max_reduction(vector<int>& arr) {
-  int max_value = INT_MIN;
-  #pragma omp parallel for reduction(max: max_value)
-  for (int i = 0; i < arr.size(); i++) {
-    if (arr[i] > max_value) {
-      max_value = arr[i];
-    }
-  }
-  cout << "Maximum value: " << max_value << endl;
+void max(int *arr, int n)
+{
+   double max_val = 0.0;
+   int i;
+
+#pragma omp parallel for reduction(max : max_val)
+   for (i = 0; i < n; i++)
+   {
+      cout << "\nthread id = " << omp_get_thread_num() << " and i = " << i;
+      if (arr[i] > max_val)
+      {
+         max_val = arr[i];
+      }
+   }
+   cout << "\n\nmax_val = " << max_val << endl;
 }
 
-void sum_reduction(vector<int>& arr) {
-  int sum = 0;
-   #pragma omp parallel for reduction(+: sum)
-   for (int i = 0; i < arr.size(); i++) {
-    sum += arr[i];
-  }
-  cout << "Sum: " << sum << endl;
+void avg(int *arr, int n)
+{
+   int i;
+   float avg = 0, sum = 0;
+#pragma omp parallel reduction(+:sum)
+   {
+      // int id = omp_get_thread_num();
+#pragma omp for
+      for (i = 0; i < n; i++)
+      {
+         sum = sum + arr[i];
+         cout << "\nthread id = " << omp_get_thread_num() << " and i = " << i;
+      }
+   }
+   cout << "\n\nSum = " << sum << endl;
+   avg = sum / n;
+   cout << "\nAverage = " << avg << endl;
 }
 
-void average_reduction(vector<int>& arr) {
-  int sum = 0;
-  #pragma omp parallel for reduction(+: sum)
-  for (int i = 0; i < arr.size(); i++) {
-    sum += arr[i];
-  }
-  cout << "Average: " << (double)sum / arr.size() << endl;
-}
+int main()
+{
+   omp_set_num_threads(4);
+   int n, i;
 
-int main() {
-  vector<int> arr;
-  arr.push_back(5);
-  arr.push_back(2);
-  arr.push_back(9);
-  arr.push_back(1);
-  arr.push_back(7);
-  arr.push_back(6);
-  arr.push_back(8);
-  arr.push_back(3);
-  arr.push_back(4);
+   cout << "Enter the number of elements in the array: ";
+   cin >> n;
+   int arr[n];
 
-  min_reduction(arr);
-  max_reduction(arr);
-  sum_reduction(arr);
-  average_reduction(arr);
+   srand(time(0));
+   for (int i = 0; i < n; ++i)
+   {
+      arr[i] = rand() % 100;
+   }
+
+   cout << "\nArray elements are: ";
+   for (i = 0; i < n; i++)
+   {
+      cout << arr[i] << ",";
+   }
+
+   min(arr, n);
+   max(arr, n);
+   avg(arr, n);
+   return 0;
 }
