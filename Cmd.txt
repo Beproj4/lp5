@@ -1,0 +1,2 @@
+nvcc -o a.out vectorAdd.cu 
+./a.out
