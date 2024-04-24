@@ -61,7 +61,7 @@ void mergeSort(std::vector<int>& arr, int l, int r) {
 
 // Function to print a vector
 void printVector(const std::vector<int>& arr) {
-    for (int num : arr)
+    for (int num =0; num<arr.size(); num++)
         std::cout << num << " ";
     std::cout << std::endl;
 }
